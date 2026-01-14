@@ -4861,6 +4861,7 @@ __metadata:
     "@xzdarcy/react-timeline-editor": "workspace:^"
     "@xzdarcy/timeline-engine": "workspace:^"
     less: "npm:^4.4.2"
+    lodash: "npm:^4.17.21"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-router-dom: "npm:^7.9.4"

@@ -175,10 +175,14 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
       if (!editAreaRef.current) return 0;
 
       const rect = editAreaRef.current.getBoundingClientRect();
-      let previewTop = clientY - rect.top - dragPreviewHeight / 2 + scrollTop;
+      // 计算鼠标在编辑区域内的相对Y坐标，加上当前滚动位置
+      let previewTop = clientY - rect.top + scrollTop;
+      // 调整为元素中心对齐鼠标
+      previewTop -= dragPreviewHeight / 2;
 
       // 限制预览元素在编辑区域内
-      previewTop = Math.max(0, Math.min(previewTop, rect.height - dragPreviewHeight));
+      const editAreaHeight = rect.height;
+      previewTop = Math.max(0, Math.min(previewTop, editAreaHeight - dragPreviewHeight));
       return previewTop;
     },
     [scrollTop],
@@ -271,32 +275,29 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
       const UPDATE_INTERVAL = 16; // 约60fps，与浏览器刷新率匹配
 
       // 鼠标移动处理函数
-      const handleMouseMove = (moveEvent: MouseEvent) => {
-        const currentTime = Date.now();
+        const handleMouseMove = (moveEvent: MouseEvent) => {
+          const currentTime = Date.now();
 
-        // 取消之前的动画帧
-        if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
-        }
-
-        // 使用requestAnimationFrame确保与浏览器渲染同步
-        animationFrameId = requestAnimationFrame(() => {
-          // 检查时间间隔，控制更新频率
-          if (currentTime - lastUpdateTime >= UPDATE_INTERVAL) {
-            const targetInfo = calculateTargetIndex(moveEvent.clientY);
-            const targetIndex = targetInfo.index;
-            const previewTop = calculateDragPreviewPosition(moveEvent.clientY, initialDragState.dragPreview.height);
-
-            // 使用setTimeout延迟状态更新，避免在渲染过程中更新状态
-            setTimeout(() => {
-              setDragState((prev) => updateDragState(prev, targetIndex, previewTop, rowIndex));
-            }, 0);
-
-            lastUpdateTime = currentTime;
+          // 取消之前的动画帧
+          if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
           }
-          animationFrameId = null;
-        });
-      };
+
+          // 使用requestAnimationFrame确保与浏览器渲染同步
+          animationFrameId = requestAnimationFrame(() => {
+            // 检查时间间隔，控制更新频率
+            if (currentTime - lastUpdateTime >= UPDATE_INTERVAL) {
+              const targetInfo = calculateTargetIndex(moveEvent.clientY);
+              const targetIndex = targetInfo.index;
+              const previewTop = calculateDragPreviewPosition(moveEvent.clientY, initialDragState.dragPreview.height);
+
+              // 直接更新状态，避免setTimeout延迟
+              setDragState((prev) => updateDragState(prev, targetIndex, previewTop, rowIndex));
+              lastUpdateTime = currentTime;
+            }
+            animationFrameId = null;
+          });
+        };
 
       // 鼠标抬起处理函数
       const handleMouseUp = () => {

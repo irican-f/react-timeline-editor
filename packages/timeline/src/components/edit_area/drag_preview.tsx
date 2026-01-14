@@ -37,7 +37,6 @@ export const DragPreview: FC<DragPreviewProps> = ({
         zIndex: 1001,
         pointerEvents: 'none',
         opacity: 0.8,
-        transition: 'top 0.1s ease',
       }}
     >
       <div
