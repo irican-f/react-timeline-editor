@@ -22,7 +22,7 @@ const RowDrag: React.FC<RowDragProps> = () => {
       <div className="row-drag-content">
         <Timeline
           onChange={setData}
-          disableRowDrag={false}
+          enableRowDrag={true}
           editorData={data}
           effects={mockEffect}
           hideCursor={false}

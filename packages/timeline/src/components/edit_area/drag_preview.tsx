@@ -13,11 +13,7 @@ interface DragPreviewProps {
 /**
  * 拖拽预览组件 - 显示拖拽中的行预览
  */
-export const DragPreview: FC<DragPreviewProps> = ({
-  top,
-  height,
-  visible,
-}) => {
+export const DragPreview: FC<DragPreviewProps> = ({ top, height, visible }) => {
   if (!visible) {
     return null;
   }

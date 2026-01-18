@@ -95,7 +95,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
     onActionResizeEnd,
     onActionResizeStart,
     onActionResizing,
-    disableRowDrag,
+    enableRowDrag = false,
     onRowDragStart,
     onRowDragEnd,
     setEditorData,
@@ -260,7 +260,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
   // 处理行拖拽开始
   const handleRowDragStart = useCallback(
     (row: TimelineRow, rowIndex: number) => {
-      if (disableRowDrag) return;
+      if (!enableRowDrag) return;
 
       // 初始化拖拽状态
       const initialDragState = initializeDragState(row, rowIndex);
@@ -275,29 +275,29 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
       const UPDATE_INTERVAL = 16; // 约60fps，与浏览器刷新率匹配
 
       // 鼠标移动处理函数
-        const handleMouseMove = (moveEvent: MouseEvent) => {
-          const currentTime = Date.now();
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        const currentTime = Date.now();
 
-          // 取消之前的动画帧
-          if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
+        // 取消之前的动画帧
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
+
+        // 使用requestAnimationFrame确保与浏览器渲染同步
+        animationFrameId = requestAnimationFrame(() => {
+          // 检查时间间隔，控制更新频率
+          if (currentTime - lastUpdateTime >= UPDATE_INTERVAL) {
+            const targetInfo = calculateTargetIndex(moveEvent.clientY);
+            const targetIndex = targetInfo.index;
+            const previewTop = calculateDragPreviewPosition(moveEvent.clientY, initialDragState.dragPreview.height);
+
+            // 直接更新状态，避免setTimeout延迟
+            setDragState((prev) => updateDragState(prev, targetIndex, previewTop, rowIndex));
+            lastUpdateTime = currentTime;
           }
-
-          // 使用requestAnimationFrame确保与浏览器渲染同步
-          animationFrameId = requestAnimationFrame(() => {
-            // 检查时间间隔，控制更新频率
-            if (currentTime - lastUpdateTime >= UPDATE_INTERVAL) {
-              const targetInfo = calculateTargetIndex(moveEvent.clientY);
-              const targetIndex = targetInfo.index;
-              const previewTop = calculateDragPreviewPosition(moveEvent.clientY, initialDragState.dragPreview.height);
-
-              // 直接更新状态，避免setTimeout延迟
-              setDragState((prev) => updateDragState(prev, targetIndex, previewTop, rowIndex));
-              lastUpdateTime = currentTime;
-            }
-            animationFrameId = null;
-          });
-        };
+          animationFrameId = null;
+        });
+      };
 
       // 鼠标抬起处理函数
       const handleMouseUp = () => {
@@ -340,7 +340,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     },
-    [disableRowDrag, onRowDragStart, initializeDragState, calculateTargetIndex, calculateDragPreviewPosition, updateDragState, handleDragEnd],
+    [enableRowDrag, onRowDragStart, initializeDragState, calculateTargetIndex, calculateDragPreviewPosition, updateDragState, handleDragEnd],
   );
 
   const handleInitDragLine: EditData['onActionMoveStart'] = (data) => {

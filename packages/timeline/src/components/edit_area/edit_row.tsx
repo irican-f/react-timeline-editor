@@ -27,11 +27,11 @@ export type EditRowProps = CommonProp & {
 };
 
 export const EditRow: FC<EditRowProps> = (props) => {
-  const { rowData, style = {}, onClickRow, onDoubleClickRow, onContextMenuRow, areaRef, scrollLeft, startLeft, scale, scaleWidth, disableRowDrag, onRowDragStart, rowIndex = -1, dragState } = props;
+  const { rowData, style = {}, onClickRow, onDoubleClickRow, onContextMenuRow, areaRef, scrollLeft, startLeft, scale, scaleWidth, enableRowDrag, onRowDragStart, rowIndex = -1, dragState } = props;
 
   const classNames = ['edit-row'];
   if (rowData?.selected) classNames.push('edit-row-selected');
-  
+
   // 如果当前行正在被拖拽，添加拖拽样式
   if (dragState?.isDragging && dragState.draggedIndex === rowIndex) {
     classNames.push('edit-row-dragging');
@@ -51,7 +51,7 @@ export const EditRow: FC<EditRowProps> = (props) => {
   // 拖拽手柄鼠标按下事件
   const handleDragHandleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (disableRowDrag || !rowData || rowIndex === -1) return;
+      if (!enableRowDrag || !rowData || rowIndex === -1) return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -59,7 +59,7 @@ export const EditRow: FC<EditRowProps> = (props) => {
       // 触发拖拽开始回调 - 传递给EditArea组件处理
       onRowDragStart?.({ row: rowData });
     },
-    [disableRowDrag, rowData, rowIndex, onRowDragStart],
+    [enableRowDrag, rowData, rowIndex, onRowDragStart],
   );
 
   return (
@@ -86,7 +86,7 @@ export const EditRow: FC<EditRowProps> = (props) => {
       }}
     >
       {/* 拖拽手柄 */}
-      {!disableRowDrag && rowData && (
+      {enableRowDrag && rowData && (
         <div ref={dragHandleRef} className={prefix('edit-row-drag-handle')} onMouseDown={handleDragHandleMouseDown} title="拖拽调整行顺序">
           ⋮⋮
         </div>

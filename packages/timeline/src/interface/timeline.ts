@@ -72,7 +72,7 @@ export interface EditData {
    * @description 禁止全部Row的拖动
    * @default false
    */
-  disableRowDrag?: boolean;
+  enableRowDrag?: boolean;
   /**
    * @description timeline运行器，不传则使用内置运行器
    */
