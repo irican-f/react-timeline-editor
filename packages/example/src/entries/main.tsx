@@ -5,17 +5,17 @@ import { routes } from '../config/app-config';
 
 // 导入所有组件
 import MainPage from '../components/main';
-import BasicExample from '../components/basic';
-import TimelineExample from '../components/timeline';
-import AnimationExample from '../components/animation';
+// import BasicExample from '../components/basic';
+// import TimelineExample from '../components/timeline';
+// import AnimationExample from '../components/animation';
 
 import RowDrag from '../components/row-drag';
 
 const componentMap: Record<string, React.FC> = {
   MainPage,
-  BasicExample,
-  TimelineExample,
-  AnimationExample,
+  // BasicExample,
+  // TimelineExample,
+  // AnimationExample,
   RowDrag,
 
 };
