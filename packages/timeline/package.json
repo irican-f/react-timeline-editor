@@ -1,6 +1,6 @@
 {
   "name": "@xzdarcy/react-timeline-editor",
-  "version": "0.1.10-alpha.2a04218ac",
+  "version": "1.0.0",
   "author": "xzdarcy",
   "license": "MIT",
   "keywords": [
@@ -36,7 +36,7 @@
   "dependencies": {
     "@interactjs/types": "^1.10.11",
     "@types/react-virtualized": "^9.21.14",
-    "@xzdarcy/timeline-engine": "workspace:^",
+    "@xzdarcy/timeline-engine": "workspace:*",
     "framework-utils": "^1.1.0",
     "interactjs": "^1.10.11",
     "react-virtualized": "^9.22.3"
@@ -67,6 +67,5 @@
         "typings": "dist/index.d.ts"
       }
     ]
-  },
-  "stableVersion": "0.1.9"
+  }
 }

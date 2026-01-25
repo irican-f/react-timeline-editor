@@ -1,6 +1,6 @@
 {
   "name": "@xzdarcy/timeline-engine",
-  "version": "0.1.10-alpha.2a04218ac",
+  "version": "1.0.0",
   "type": "module",
   "description": "Timeline engine for react-timeline-editor",
   "main": "src/index.ts",
@@ -39,6 +39,5 @@
         "typings": "dist/index.d.ts"
       }
     ]
-  },
-  "stableVersion": "0.1.9"
+  }
 }

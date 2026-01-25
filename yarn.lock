@@ -2881,7 +2881,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xzdarcy/react-timeline-editor@workspace:^, @xzdarcy/react-timeline-editor@workspace:packages/timeline":
+"@xzdarcy/react-timeline-editor@workspace:*, @xzdarcy/react-timeline-editor@workspace:^, @xzdarcy/react-timeline-editor@workspace:packages/timeline":
   version: 0.0.0-use.local
   resolution: "@xzdarcy/react-timeline-editor@workspace:packages/timeline"
   dependencies:
@@ -2893,7 +2893,7 @@ __metadata:
     "@umijs/test": "npm:^3.0.5"
     "@vitejs/plugin-react": "npm:^4.2.0"
     "@vitejs/plugin-react-swc": "npm:^3.5.0"
-    "@xzdarcy/timeline-engine": "workspace:^"
+    "@xzdarcy/timeline-engine": "workspace:*"
     framework-utils: "npm:^1.1.0"
     interactjs: "npm:^1.10.11"
     less: "npm:^4.4.0"
@@ -2912,7 +2912,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@xzdarcy/timeline-engine@workspace:^, @xzdarcy/timeline-engine@workspace:packages/engine":
+"@xzdarcy/timeline-engine@workspace:*, @xzdarcy/timeline-engine@workspace:^, @xzdarcy/timeline-engine@workspace:packages/engine":
   version: 0.0.0-use.local
   resolution: "@xzdarcy/timeline-engine@workspace:packages/engine"
   dependencies:
@@ -4328,8 +4328,8 @@ __metadata:
     "@types/node": "npm:^18.11.17"
     "@types/react": "npm:^18.2.0"
     "@types/react-dom": "npm:^18.2.0"
-    "@xzdarcy/react-timeline-editor": "workspace:^"
-    "@xzdarcy/timeline-engine": "workspace:^"
+    "@xzdarcy/react-timeline-editor": "workspace:*"
+    "@xzdarcy/timeline-engine": "workspace:*"
     antd: "npm:^4.16.13"
     fs-extra: "npm:^11.3.2"
     howler: "npm:^2.2.3"
