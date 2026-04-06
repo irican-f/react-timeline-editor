@@ -27,7 +27,23 @@ export type EditRowProps = CommonProp & {
 };
 
 export const EditRow: FC<EditRowProps> = (props) => {
-  const { rowData, style = {}, onClickRow, onDoubleClickRow, onContextMenuRow, areaRef, scrollLeft, startLeft, scale, scaleWidth, enableRowDrag, onRowDragStart, rowIndex = -1, dragState } = props;
+  const {
+    rowData,
+    style = {},
+    onClickRow,
+    onDoubleClickRow,
+    onContextMenuRow,
+    areaRef,
+    scrollLeft,
+    startLeft,
+    scale,
+    scaleWidth,
+    enableRowDrag,
+    onRowDragStart,
+    rowIndex = -1,
+    dragState,
+    dropTargetRowIndex,
+  } = props;
 
   const classNames = ['edit-row'];
   if (rowData?.selected) classNames.push('edit-row-selected');
@@ -36,6 +52,10 @@ export const EditRow: FC<EditRowProps> = (props) => {
   if (dragState?.isDragging && dragState.draggedIndex === rowIndex) {
     classNames.push('edit-row-dragging');
   }
+
+  
+  const isDropTargetRow =
+    typeof dropTargetRowIndex === 'number' && rowIndex >= 0 && dropTargetRowIndex === rowIndex;
 
   const dragHandleRef = useRef<HTMLDivElement>(null);
 
@@ -64,7 +84,7 @@ export const EditRow: FC<EditRowProps> = (props) => {
 
   return (
     <div
-      className={`${prefix(...classNames)} ${(rowData?.classNames || []).join(' ')}`}
+      className={`${prefix(...classNames)} ${(rowData?.classNames || []).join(' ')}${isDropTargetRow ? ' sequence-editor-timeline-drop-target' : ''}`}
       style={style}
       onClick={(e) => {
         if (rowData && onClickRow) {

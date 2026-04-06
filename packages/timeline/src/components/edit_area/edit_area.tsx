@@ -1,6 +1,6 @@
 import React, { useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { AutoSizer, Grid, GridCellRenderer, OnScrollParams, ScrollParams } from 'react-virtualized';
-import { TimelineRow } from '@xzdarcy/timeline-engine';
+import { TimelineAction, TimelineRow } from '@xzdarcy/timeline-engine';
 import { CommonProp } from '../../interface/common_prop';
 import { EditData } from '../../interface/timeline';
 import { prefix } from '../../utils/deal_class_prefix';
@@ -418,7 +418,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
     [enableRowDrag, onRowDragStart, initializeDragState, calculateTargetIndex, calculateDragPreviewPosition, updateDragState, handleDragEnd, scrollTop],
   );
 
-  const handleInitDragLine: EditData['onActionMoveStart'] = (data) => {
+  const handleInitDragLine = (data: { action: TimelineAction; row: TimelineRow }) => {
     if (dragLine) {
       const assistActionIds =
         getAssistDragLineActionIds &&

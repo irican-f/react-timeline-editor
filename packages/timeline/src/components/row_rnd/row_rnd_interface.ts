@@ -1,3 +1,4 @@
+import type { ReactNode, RefObject } from "react";
 import { DragEvent, ResizeEvent } from "@interactjs/types/index";
 
 type EventData = {
@@ -7,12 +8,21 @@ type EventData = {
   width: number;
 };
 
-export type RndDragStartCallback = () => void;
+export type RndDragStartCallback = (e: DragEvent) => void;
 export type RndDragCallback = (
   data: EventData,
   scrollDelta?: number,
 ) => boolean | void;
-export type RndDragEndCallback = (data: Pick<EventData, 'left' | 'width'>) => void;
+
+/** Fires on every pointer move during drag (includes vertical-only moves). */
+export type RndDragVerticalTickCallback = (data: {
+  left: number;
+  width: number;
+  deltaY: number;
+}) => void;
+export type RndDragEndCallback = (
+  data: Pick<EventData, "left" | "width"> & { deltaY?: number },
+) => void;
 
 export type Direction = "left" | "right";
 export type RndResizeStartCallback = (dir: Direction) => void;
@@ -22,7 +32,7 @@ export type RndResizeCallback = (
 ) => boolean | void;
 export type RndResizeEndCallback = (
   dir: Direction,
-  data: Pick<EventData, 'left' | 'width'>
+  data: Pick<EventData, "left" | "width">
 ) => void;
 
 export interface RowRndApi {
@@ -38,19 +48,20 @@ export interface RowRndProps {
   grid?: number;
   start?: number;
   bounds?: { left: number; right: number };
-  edges?: {left: boolean | string, right: boolean | string};
+  edges?: { left: boolean | string; right: boolean | string };
 
   onResizeStart?: RndResizeStartCallback;
   onResize?: RndResizeCallback;
   onResizeEnd?: RndResizeEndCallback;
   onDragStart?: RndDragStartCallback;
   onDrag?: RndDragCallback;
+  /** Called on every drag pointer move so consumers can react to deltaY without horizontal grid steps. */
+  onDragVerticalTick?: RndDragVerticalTickCallback;
   onDragEnd?: RndDragEndCallback;
-  // 同时传入parentRef和deltaScrollLeft时会启动自动滚动
-  parentRef: React.RefObject<HTMLDivElement>;
+  parentRef: RefObject<HTMLDivElement>;
   deltaScrollLeft?: (delta: number) => void;
 
-  children?: React.ReactNode;
+  children?: ReactNode;
 
   enableResizing?: boolean;
   enableDragging?: boolean;

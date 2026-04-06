@@ -74,6 +74,10 @@ export interface EditData {
    */
   enableRowDrag?: boolean;
   /**
+   * @description Optional 0-based row index to highlight as the current drop target (e.g. vertical clip drag).
+   */
+  dropTargetRowIndex?: number | null;
+  /**
    * @description timeline运行器，不传则使用内置运行器
    */
   engine?: ITimelineEngine;
@@ -88,11 +92,28 @@ export interface EditData {
   /**
    * @description 开始移动回调
    */
-  onActionMoveStart?: (params: { action: TimelineAction; row: TimelineRow }) => void;
+  onActionMoveStart?: (params: {
+    action: TimelineAction;
+    row: TimelineRow;
+    /** Pointer X minus action element \getBoundingClientRect().left\ (viewport px). */
+    pointerOffsetX: number;
+    /** Pointer Y minus action element \getBoundingClientRect().top\ (viewport px). */
+    pointerOffsetY: number;
+  }) => void;
   /**
    * @description 移动回调（return false可阻止移动）
    */
   onActionMoving?: (params: { action: TimelineAction; row: TimelineRow; start: number; end: number }) => void | boolean;
+  /**
+   * @description 拖拽时每帧（含仅纵向移动），用于跨轨道投放高亮 / 浮层预览；不影响吸附与辅助线。
+   */
+  onActionVerticalPreview?: (params: {
+    action: TimelineAction;
+    row: TimelineRow;
+    start: number;
+    end: number;
+    deltaY: number;
+  }) => void;
   /**
    * @description 移动结束回调（return false可阻止onChange触发）
    */

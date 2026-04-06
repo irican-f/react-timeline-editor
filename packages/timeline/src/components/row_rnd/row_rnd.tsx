@@ -30,6 +30,7 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       onDragStart,
       onDragEnd,
       onDrag,
+      onDragVerticalTick,
       parentRef,
       deltaScrollLeft,
     },
@@ -37,6 +38,7 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
   ) => {
     const interactable = useRef<Interactable | null>(null);
     const deltaX = useRef(0);
+    const deltaY = useRef(0);
     const isAdsorption = useRef(false);
     const { initAutoScroll, dealDragAutoScroll, dealResizeAutoScroll, stopAutoScroll } = useAutoScroll(parentRef);
 
@@ -83,14 +85,27 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       const target = interactable.current?.target as HTMLElement;
       return parseFloat(target?.dataset?.width || '0');
     };
+
+    const fireDragVerticalTick = (dragTarget: EventTarget | null) => {
+      if (!onDragVerticalTick || !dragTarget || !(dragTarget instanceof HTMLElement)) {
+        return;
+      }
+      const ds = dragTarget.dataset;
+      onDragVerticalTick({
+        left: parseFloat(ds.left || '0'),
+        width: parseFloat(ds.width || '0'),
+        deltaY: deltaY.current,
+      });
+    };
     //#endregion
 
     //#region [rgba(188,188,120,0.05)] 回调api
     const handleMoveStart = (e: DragEvent) => {
       deltaX.current = 0;
+      deltaY.current = 0;
       isAdsorption.current = false;
       initAutoScroll();
-      onDragStart && onDragStart();
+      onDragStart && onDragStart(e);
     };
 
     const move = (param: { preLeft: number; preWidth: number; scrollDelta?: number }) => {
@@ -156,6 +171,7 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
           const preWidth = parseFloat(width || '0');
           deltaX.current += delta;
           move({ preLeft, preWidth, scrollDelta: delta });
+          fireDragVerticalTick(target);
         });
         if (!result) return;
       }
@@ -165,17 +181,27 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       const preWidth = parseFloat(width || '0');
 
       deltaX.current += e.dx;
+      deltaY.current += e.dy;
       move({ preLeft, preWidth });
+      fireDragVerticalTick(target);
     };
 
     const handleMoveStop = (e: DragEvent) => {
+      const dy = deltaY.current;
       deltaX.current = 0;
+      deltaY.current = 0;
       isAdsorption.current = false;
       stopAutoScroll();
 
-      const target = e.target;
+      const target = e.target as HTMLElement;
       let { left, width } = target.dataset;
-      onDragEnd && onDragEnd({ left: parseFloat(left || '0'), width: parseFloat(width || '0') });
+      target.style.transform = '';
+      onDragEnd &&
+        onDragEnd({
+          left: parseFloat(left || '0'),
+          width: parseFloat(width || '0'),
+          deltaY: dy,
+        });
     };
 
     const handleResizeStart = (e: ResizeEvent) => {
@@ -329,7 +355,7 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
         draggable={enableDragging}
         resizable={enableResizing}
         draggableOptions={{
-          lockAxis: 'x',
+          lockAxis: 'xy',
           onmove: handleMove,
           onstart: handleMoveStart,
           onend: handleMoveStop,

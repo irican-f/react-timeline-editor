@@ -38,6 +38,7 @@ export const EditAction: FC<EditActionProps> = ({
   setScaleCount,
   onActionMoveStart,
   onActionMoving,
+  onActionVerticalPreview,
   onActionMoveEnd,
   onActionResizeStart,
   onActionResizeEnd,
@@ -56,6 +57,7 @@ export const EditAction: FC<EditActionProps> = ({
 }) => {
   const rowRnd = useRef<RowRndApi>(null);
   const isDragWhenClick = useRef(false);
+  const [hideClipForVerticalDrag, setHideClipForVerticalDrag] = useState(false);
   const { id, maxEnd, minStart, end, start, selected, flexible = true, movable = true, effectId } = action;
 
   // 获取最大/最小 像素范围
@@ -103,8 +105,17 @@ export const EditAction: FC<EditActionProps> = ({
   };
 
   //#region [rgba(100,120,156,0.08)] 回调
-  const handleDragStart: RndDragStartCallback = () => {
-    onActionMoveStart && onActionMoveStart({ action, row });
+  const handleDragStart: RndDragStartCallback = (e) => {
+    setHideClipForVerticalDrag(false);
+    let pointerOffsetX = transform.width / 2;
+    let pointerOffsetY = rowHeight / 2;
+    const t = e.target;
+    if (t instanceof HTMLElement) {
+      const rect = t.getBoundingClientRect();
+      pointerOffsetX = e.clientX - rect.left;
+      pointerOffsetY = e.clientY - rect.top;
+    }
+    onActionMoveStart && onActionMoveStart({ action, row, pointerOffsetX, pointerOffsetY });
   };
   const handleDrag: RndDragCallback = ({ left, width }) => {
     isDragWhenClick.current = true;
@@ -118,21 +129,49 @@ export const EditAction: FC<EditActionProps> = ({
     handleScaleCount(left, width);
   };
 
-  const handleDragEnd: RndDragEndCallback = ({ left, width }) => {
-    // 计算时间
+  const handleDragEnd: RndDragEndCallback = ({ left, width, deltaY = 0 }) => {
+    setHideClipForVerticalDrag(false);
     const { start, end } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
 
-    // 设置数据
-    const rowItem = editorData.find((item: TimelineRow) => item.id === row.id);
-    if (!rowItem) return;
-    const action = rowItem.actions.find((item: TimelineAction) => item.id === id);
-    if (!action) return;
-    action.start = start;
-    action.end = end;
-    setEditorData(editorData);
+    const sourceIndex = editorData.findIndex((item: TimelineRow) => item.id === row.id);
+    if (sourceIndex < 0) return;
 
-    // 执行回调
-    if (onActionMoveEnd) onActionMoveEnd({ action, row, start, end });
+    const movedAction = editorData[sourceIndex].actions.find((item: TimelineAction) => item.id === id);
+    if (!movedAction) return;
+
+    const deltaRows = Math.round(deltaY / rowHeight);
+    let targetIndex = sourceIndex + deltaRows;
+    targetIndex = Math.max(0, Math.min(editorData.length - 1, targetIndex));
+
+    const updatedAction = { ...movedAction, start, end };
+
+    if (targetIndex === sourceIndex) {
+      const rowItem = editorData.find((item: TimelineRow) => item.id === row.id);
+      if (!rowItem) return;
+      const act = rowItem.actions.find((item: TimelineAction) => item.id === id);
+      if (!act) return;
+      act.start = start;
+      act.end = end;
+      setEditorData(editorData);
+      if (onActionMoveEnd) onActionMoveEnd({ action: act, row, start, end });
+      return;
+    }
+
+    const nextData = editorData.map((r: TimelineRow) => ({
+      ...r,
+      actions: r.actions.filter((a: TimelineAction) => a.id !== id),
+    }));
+    const targetRow = nextData[targetIndex];
+    nextData[targetIndex] = {
+      ...targetRow,
+      actions: [...targetRow.actions, updatedAction].sort((a, b) => a.start - b.start),
+    };
+
+    setEditorData(nextData);
+
+    if (onActionMoveEnd) {
+      onActionMoveEnd({ action: updatedAction, row: nextData[targetIndex], start, end });
+    }
   };
 
   const handleResizeStart: RndResizeStartCallback = (dir) => {
@@ -203,6 +242,15 @@ export const EditAction: FC<EditActionProps> = ({
       enableResizing={!disableDrag && flexible}
       onDragStart={handleDragStart}
       onDrag={handleDrag}
+      onDragVerticalTick={({ left, width, deltaY }) => {
+        if (Math.abs(deltaY) > 2) {
+          setHideClipForVerticalDrag(true);
+        }
+        if (onActionVerticalPreview) {
+          const { start: s, end: en } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
+          onActionVerticalPreview({ action, row, start: s, end: en, deltaY });
+        }
+      }}
       onDragEnd={handleDragEnd}
       onResizeStart={handleResizeStart}
       onResize={handleResizing}
@@ -237,7 +285,10 @@ export const EditAction: FC<EditActionProps> = ({
           }
         }}
         className={prefix((classNames || []).join(' '))}
-        style={{ height: rowHeight }}
+        style={{
+          height: rowHeight,
+          opacity: hideClipForVerticalDrag ? 0 : 1,
+        }}
       >
         {getActionRender && getActionRender(nowAction, nowRow)}
         {flexible && <div className={prefix('action-left-stretch')} />}

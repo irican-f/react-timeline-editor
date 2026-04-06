@@ -60,7 +60,7 @@ export const Cursor: FC<CursorProps> = ({
       deltaScrollLeft={deltaScrollLeft}
       enableDragging={!disableDrag}
       enableResizing={false}
-      onDragStart={() => {
+      onDragStart={(_e) => {
         onCursorDragStart && onCursorDragStart(cursorTime);
         draggingLeft.current = parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft;
         rowRnd.current?.updateLeft(draggingLeft.current);
